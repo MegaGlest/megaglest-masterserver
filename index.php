@@ -3,5 +3,5 @@
 //	The MegaGlest Team, under GNU GPL v3.0
 // ==============================================================
 
-require_once('showServers.php');
+require_once('webpage/games.php');
 ?>

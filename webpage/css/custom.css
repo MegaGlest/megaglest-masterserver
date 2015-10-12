@@ -1,0 +1,40 @@
+body {
+  padding-bottom:40px;
+}
+a {
+  color:#f89406;
+}
+a:hover {
+  text-decoration:none;
+}
+.ach-box {
+  background:#3a3f44;
+  text-align:center;
+  outline:1px solid #1c1e22;
+  height:300px;
+}
+.ach-box img {
+  max-height:100px;
+}
+.ach-locked img {
+  -webkit-filter: grayscale(100%); filter: grayscale(100%);
+}
+.ach-locked:hover img{
+  -webkit-filter: grayscale(0%); filter: grayscale(0%);
+}
+.ach-box p {
+  padding-top:10px;
+}
+.ach-box:hover h3 {
+  color:#f89406;
+}
+.ach-box p span {
+  font-size:42px;
+  font-family: 'Indie Flower', cursive;
+}
+.ach-unlocked {
+  box-shadow: inset 0 0 10px #f89406;
+}
+.ach-unlocked h3 {
+  color:#f89406;
+}
