@@ -1,7 +1,7 @@
 <?php
-require_once(__DIR__ . "config.php");
-include_once(__DIR__ . "functions.php");
-include_once(__DIR__ . "head.php");
+require_once(__DIR__ . "/config.php");
+include_once(__DIR__ . "/functions.php");
+include_once(__DIR__ . "/head.php");
 ?>
 
 <body>
@@ -74,7 +74,7 @@ include_once(__DIR__ . "head.php");
   <?php 
   	//close connection to db
 	$db->close();
-	include_once(__DIR__ . "foot.php");
+	include_once(__DIR__ . "/foot.php");
   ?>
 </body>
 
