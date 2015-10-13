@@ -3,5 +3,6 @@
 //	The MegaGlest Team, under GNU GPL v3.0
 // ==============================================================
 
-require_once('webpage/games.php');
+//redirect to games page
+header('Location: webpage/games.php', true, 301);
 ?>
