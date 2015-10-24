@@ -15,7 +15,7 @@ include_once(__DIR__ . "/head.php");
 
     <?php
     $db=createDbObject();
-    $result = $db->query('SELECT * FROM glestserver WHERE status=0 AND connectedClients > 0 ORDER BY lasttime DESC');
+    $result = $db->query('SELECT * FROM glestserver WHERE (status=0 OR status=1) AND connectedClients > 0 ORDER BY lasttime DESC');
     if($result->num_rows > 0){
     ?>
     <div class="row">
@@ -31,7 +31,7 @@ include_once(__DIR__ . "/head.php");
               <th>Map</th>
               <th>Tileset</th>
               <th>Platform</th>
-              <th>Play Date</th>
+              <th>Connected Clients</th>
             </tr>
             <?php
 
@@ -67,7 +67,12 @@ include_once(__DIR__ . "/head.php");
               }
                 ?>
                 </td>
-              <td><?=$row['lasttime']?></td>
+              <td><?php
+	          	  if($row['connectedClients']==$row['networkSlots'] && $row['status']==1 ) {
+	              	echo("Full<br>");	
+	              }
+	              echo($row['connectedClients']."/".$row['networkSlots']);?>
+              </td>
             </tr>
             <?php } ?>
           </tbody>
@@ -95,7 +100,6 @@ if($result->num_rows > 0){
               <th>Map</th>
               <th>Tileset</th>
               <th>Platform</th>
-              <th>Play Date</th>
             </tr>
             <?php
             while($row = $result->fetch_assoc()){
@@ -130,7 +134,6 @@ if($result->num_rows > 0){
               }
                 ?>
                 </td>
-              <td><?=$row['lasttime']?></td>
             </tr>
             <?php } ?>
           </tbody>
