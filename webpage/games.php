@@ -38,7 +38,7 @@ include_once(__DIR__ . "/head.php");
             while($row = $result->fetch_assoc()){
             ?>
             <tr>
-              <td><a href="game.php?uuid=<?=$row['gameUUID']?>"><?=$row['serverTitle']?></a></td>
+              <td><?=$row['serverTitle']?></td>
               <td><?=$row['glestVersion']?></td>
               <?php if($row['country'] !=""){ ?>
               <td><img src="img/flags/<?=strtolower($row['country'])?>.png" title="<?=$row['country']?>"/></td>
@@ -68,10 +68,10 @@ include_once(__DIR__ . "/head.php");
                 ?>
                 </td>
               <td><?php
-	          	  if($row['connectedClients']==$row['networkSlots'] && $row['status']==1 ) {
-	              	echo("Full<br>");	
-	              }
-	              echo($row['connectedClients']."/".$row['networkSlots']);?>
+	              echo($row['connectedClients']."/".$row['networkSlots']);
+              	  if($row['connectedClients']==$row['networkSlots'] && $row['status']==1 ) {
+	              	echo(" <b>Full - Pending Start</b>");
+	              }?>
               </td>
             </tr>
             <?php } ?>
