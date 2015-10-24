@@ -9,7 +9,7 @@ include_once(__DIR__ . "/head.php");
   <div class="container">
     <div class="row">
       <div class="col-md-12">
-<?php include(__DIR__ . "navbar.php") ?>
+<?php include(__DIR__ . "/navbar.php") ?>
       </div>
     </div>
 
