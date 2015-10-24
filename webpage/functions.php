@@ -1,4 +1,6 @@
 <?php
+require_once("config.php");
+
 function secondsToTime($inputSeconds) {
 
 	$secondsInAMinute = 60;
@@ -28,5 +30,14 @@ function secondsToTime($inputSeconds) {
 			's' => (int) $seconds,
 	);
 	return $obj;
+}
+
+function createDbObject() {
+	$db = new mysqli(MYSQL_HOST, MYSQL_USER, MYSQL_PASSWORD, MYSQL_DATABASE);
+	
+	if($db->connect_errno > 0){
+		die('Unable to connect to database [' . $db->connect_error . ']');
+	}
+	return $db;
 }
 ?>

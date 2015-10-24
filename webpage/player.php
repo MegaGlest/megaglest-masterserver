@@ -1,5 +1,5 @@
 <?php
-require_once(__DIR__ . "/config.php");
+define( 'INCLUSION_PERMITTED', true );
 include_once(__DIR__ . "/functions.php");
 include_once(__DIR__ . "/head.php");
 ?>
@@ -13,10 +13,11 @@ $limit=10;
   <div class="container">
     <div class="row">
       <div class="col-md-12">
-<?php include("navbar.php") ?>
+<?php include(__DIR__ . "navbar.php") ?>
       </div>
     </div>
     <?php
+    $db=createDbObject();
     $name  = $db->real_escape_string($_GET['name']);
 	//games
 	$result = $db->query("SELECT COUNT(*) as count,SUM(wonGame=1) as won , SUM(ggs.framesToCalculatePlaytime)/30 as playtime FROM glestgameplayerstats s, glestgamestats ggs WHERE playerName='$name' AND controltype>4 AND s.gameUUID=ggs.gameUUID"); //controltype needs to be 5 to prevent counting of cpus when their name is not set
