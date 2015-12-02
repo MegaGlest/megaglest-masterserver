@@ -42,7 +42,7 @@ $limit=10;
     ?>
     <div class="row">
       <div class="col-md-12">
-        <h2><?=$name."s profile"?></h2>
+        <h2><?=htmlspecialchars($name)."s profile"?></h2>
       </div>
     </div>
     <div class="row">
@@ -78,6 +78,7 @@ $limit=10;
             </tr>
          </tbody>
         </table>
+      </div>
     </div>
     <div class="row">
       <div class="col-md-6">
@@ -85,7 +86,10 @@ $limit=10;
         <?php
 		$gameLimit=3;
         if(isset($_GET['gameLimit'])){
-			$gameLimit=$_GET['gameLimit'];
+			$gameLimit=$db->real_escape_string($_GET['gameLimit']);
+			if(!is_numeric($gameLimit)){
+				$gameLimit=50;
+			}
 		}else{
 			$gameLimit=50;
 		}

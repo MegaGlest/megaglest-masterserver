@@ -1,5 +1,6 @@
 <?php
 require_once("../config.php");
+include("../cleanUpServerList.php");
 
 function secondsToTime($inputSeconds) {
 
