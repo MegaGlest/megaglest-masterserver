@@ -79,8 +79,6 @@ $limit=10;
          </tbody>
         </table>
       </div>
-    </div>
-    <div class="row">
       <div class="col-md-6">
         <h3>Last Games</h3>
         <?php
