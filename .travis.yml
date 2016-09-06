@@ -1,0 +1,19 @@
+# Copied from https://scan.coverity.com/projects/megaglest-master-server/builds/new?tab=travis_ci
+env:
+  global:
+   # The next declaration is the encrypted COVERITY_SCAN_TOKEN, created
+   #   via the "travis encrypt" command using the project repo's public key
+   - secure: "HpNhiIi7CgFU54W5BFj8pZG2tagZP2b6egBQqDeViO0frhYpktuozidkXeTHPoWHC2kKiAZVsSwwvgvjG7K1KRnKoU0cabvR3T6gm/nLMLkxrD+cSvxZOOOv9PN4iItwI4uSoNqmsNAsDGz7KDLEvpq7IsWCv2h7fK5qAcn36yE="
+
+before_install:
+      - echo -n | openssl s_client -connect scan.coverity.com:443 | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' | sudo tee -a /etc/ssl/certs/ca-
+
+addons:
+  coverity_scan:
+    project:
+      name: "MegaGlest/megaglest-masterserver"
+      description: "Build submitted via Travis CI"
+    notification_email: tomreyn@megaglest.org
+    build_command_prepend: ""
+    build_command: ""
+    #branch_pattern: coverity_scan
