@@ -20,25 +20,32 @@
 
 	function db_connect()
 	{
+		if ( !is_null( Registry::$mysqliLink) ) {
+			return Registry::$mysqliLink;
+		}
+
 		// If we may use persistent MYSQL database server links...
 		if ( defined( 'MYSQL_LINK_PERSIST' ) && MYSQL_LINK_PERSIST === true ) 
 		{
 			// ...then reuse an existing link or create a new one, ...
-			$linkid = mysql_pconnect( MYSQL_HOST, MYSQL_USER, MYSQL_PASSWORD );
+			$linkid = mysqli_pconnect( MYSQL_HOST, MYSQL_USER, MYSQL_PASSWORD );
 		}
 		else
 		{
 			// ...otherwise create a standard link
-			$linkid = mysql_connect( MYSQL_HOST, MYSQL_USER, MYSQL_PASSWORD );
+			$linkid = mysqli_connect( MYSQL_HOST, MYSQL_USER, MYSQL_PASSWORD );
 		}
-		mysql_select_db( MYSQL_DATABASE );
-		return $linkid;
+
+		Registry::$mysqliLink = $linkid;
+
+		mysqli_select_db( $linkid, MYSQL_DATABASE );
+		return -1;
 	}
 
 	function db_disconnect( $linkid )
 	{
 		// note that mysql_close() only closes non-persistent connections
-		return mysql_close( $linkid );
+		return mysqli_close( $linkid );
 	}
 
 	function get_localsubnet_ip_prefix()
@@ -59,18 +66,18 @@
 	function cleanupServerList()
 	{
 		// on a busy server, this function should be invoked by cron in regular intervals instead (one SQL query less for the script)
-		mysql_query( 'DELETE FROM glestserver WHERE status <> 3 AND lasttime < DATE_add(NOW(), INTERVAL -1 minute);' );
-		//return mysql_query( 'UPDATE glestserver SET status=\'???\' WHERE lasttime<DATE_add(NOW(), INTERVAL -2 minute);' );
+		mysqli_query( Registry::$mysqliLink, 'DELETE FROM glestserver WHERE status <> 3 AND lasttime < DATE_add(NOW(), INTERVAL -1 minute);' );
+		//return mysqli_query( 'UPDATE glestserver SET status=\'???\' WHERE lasttime<DATE_add(NOW(), INTERVAL -2 minute);' );
         }
 
 	function cleanupGameStats()
 	{
                 // Purge completed games that are less than x minutes in duration
-                mysql_query( 'DELETE FROM glestserver WHERE status = 3 AND gameUUID in (SELECT gameUUID from glestgamestats where framesToCalculatePlaytime / 40 / 60 < ' . MAX_MINS_OLD_COMPLETED_GAMES . ');');
+                mysqli_query( Registry::$mysqliLink, 'DELETE FROM glestserver WHERE status = 3 AND gameUUID in (SELECT gameUUID from glestgamestats where framesToCalculatePlaytime / 40 / 60 < ' . MAX_MINS_OLD_COMPLETED_GAMES . ');');
 
                 // Cleanup game stats for games that are purged
-                mysql_query( 'DELETE FROM glestgamestats WHERE gameUUID NOT IN (SELECT gameUUID from glestserver);');
-                mysql_query( 'DELETE FROM glestgameplayerstats WHERE gameUUID NOT IN (SELECT gameUUID from glestgamestats);');
+                mysqli_query( Registry::$mysqliLink, 'DELETE FROM glestgamestats WHERE gameUUID NOT IN (SELECT gameUUID from glestserver);');
+                mysqli_query( Registry::$mysqliLink, 'DELETE FROM glestgameplayerstats WHERE gameUUID NOT IN (SELECT gameUUID from glestgamestats);');
         }
 
 	function addLatestServer($remote_ip, $service_port, $serverTitle, $connectedClients, $networkSlots )
@@ -78,24 +85,24 @@
 		// insert the new server
 		$server = "$remote_ip:$service_port";
 		$players = "$connectedClients/$networkSlots";
-		mysql_query( "INSERT INTO recent_servers (name, server, players) VALUES('$serverTitle', '$server', '$players')");
+		mysqli_query( Registry::$mysqliLink, "INSERT INTO recent_servers (name, server, players) VALUES('$serverTitle', '$server', '$players')");
 
 		// make sure there are not too much servers
-		$count_query = mysql_fetch_assoc(mysql_query( "SELECT COUNT(*) as count FROM recent_servers"));
+		$count_query = mysqli_fetch_assoc(mysqli_query( Registry::$mysqliLink, "SELECT COUNT(*) as count FROM recent_servers"));
 		$count = (int) $count_query['count'];
 		$over = $count - MAX_RECENT_SERVERS;
-		mysql_query( "DELETE FROM recent_servers ORDER BY id LIMIT $over");
+		mysqli_query( Registry::$mysqliLink, "DELETE FROM recent_servers ORDER BY id LIMIT $over");
 	}
 
 	function updateServer($remote_ip, $service_port, $serverTitle, $connectedClients, $networkSlots ) {
 		// find the id of the server to update
 		$server = "$remote_ip:$service_port";
 		$players = "$connectedClients/$networkSlots";
-		$find_query = mysql_fetch_assoc(mysql_query( "SELECT id FROM recent_servers WHERE server ='$server' ORDER BY id desc LIMIT 1"));
+		$find_query = mysqli_fetch_assoc(mysqli_query( Registry::$mysqliLink, "SELECT id FROM recent_servers WHERE server ='$server' ORDER BY id desc LIMIT 1"));
 		$id = (int) $find_query['id'];
 
 		// update it.
-		mysql_query( "UPDATE recent_servers SET name='$serverTitle', players='$players' WHERE id=$id LIMIT 1");
+		mysqli_query( Registry::$mysqliLink, "UPDATE recent_servers SET name='$serverTitle', players='$players' WHERE id=$id LIMIT 1");
 	}
 
         function getTimeString($frames) {

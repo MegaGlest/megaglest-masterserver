@@ -39,9 +39,10 @@ INSTALLATION
 2. Create a new MySQL database and a user who has has all standard permissions
    to work on this database after authentication.
    Example:
-   CREATE DATABASE 'megaglest-master' ENGINE=InnoDB;
-   CREATE USER 'megaglest-master'@'localhost' IDENTIFIED BY 'secret password';
-   GRANT ALL ON 'megaglest-master.*' TO 'megaglest-master';
+   CREATE DATABASE `megaglest-master`;
+   CREATE USER `megaglest-master`@`localhost` IDENTIFIED BY 'secret password';
+   GRANT ALL ON `megaglest-master`.* TO `megaglest-master`@`localhost`;
+   FLUSH PRIVILEGES;
 
 3. Copy all files (you can omit INSTALL and install/) to your webserver and
    edit config.php to reflect the MySQL connection parameters and game title;
