@@ -22,7 +22,7 @@
                 define( 'DB_LINK', db_connect() );
 
                 $gameUUID = (string) clean_str( $_GET['gameUUID'] );
-                $whereClause = 'gameUUID=\'' . mysql_real_escape_string( $gameUUID ) . '\'';
+                $whereClause = 'gameUUID=\'' . mysqli_real_escape_string(Registry::$mysqliLink, $gameUUID ) . '\'';
 
                 $gameDuration = 0;
                 $framesToCalculatePlaytime = 0;
@@ -33,23 +33,23 @@
 
                 if($gameDuration < MAX_MINS_OLD_COMPLETED_GAMES)
                 {
-	                $game_completed = @mysql_query( 'SELECT COUNT(*) FROM glestserver WHERE ' . $whereClause . ' AND status=3;' );
-                       	$game_completed_status  = @mysql_fetch_row( $game_completed );
+	                $game_completed = @mysqli_query( Registry::$mysqliLink, 'SELECT COUNT(*) FROM glestserver WHERE ' . $whereClause . ' AND status=3;' );
+                       	$game_completed_status  = @mysqli_fetch_row( $game_completed );
                         if( $game_completed_status[0] > 0 )
                         {
-                                mysql_query( 'DELETE FROM glestserver WHERE ' . $whereClause . ';');
-                                mysql_query( 'DELETE FROM glestgamestats WHERE ' . $whereClause . ';');
-                                mysql_query( 'DELETE FROM glestgameplayerstats WHERE ' . $whereClause . ';');
+                                mysqli_query( Registry::$mysqliLink, 'DELETE FROM glestserver WHERE ' . $whereClause . ';');
+                                mysqli_query( Registry::$mysqliLink, 'DELETE FROM glestgamestats WHERE ' . $whereClause . ';');
+                                mysqli_query( Registry::$mysqliLink, 'DELETE FROM glestgameplayerstats WHERE ' . $whereClause . ';');
 
                                 echo 'OK - ' . $gameDuration;
                                 return;
                         }
                 }
 
-	        $stats_in_db = @mysql_query( 'SELECT COUNT(*) FROM glestgamestats WHERE ' . $whereClause . ';' );
-               	$statsCount  = @mysql_fetch_row( $stats_in_db );
-	        $player_stats_in_db = @mysql_query( 'SELECT COUNT(*) FROM glestgameplayerstats WHERE ' . $whereClause . ';');
-               	$player_statsCount  = @mysql_fetch_row( $player_stats_in_db );
+	        $stats_in_db = @mysqli_query( Registry::$mysqliLink, 'SELECT COUNT(*) FROM glestgamestats WHERE ' . $whereClause . ';' );
+               	$statsCount  = @mysqli_fetch_row( $stats_in_db );
+	        $player_stats_in_db = @mysqli_query( Registry::$mysqliLink, 'SELECT COUNT(*) FROM glestgameplayerstats WHERE ' . $whereClause . ';');
+               	$player_statsCount  = @mysqli_fetch_row( $player_stats_in_db );
 
                 
                 $gameUUID = (string) clean_str( $_GET['gameUUID'] );
@@ -81,15 +81,15 @@
 	        if ( $statsCount[0] > 0 )    // this game is contained in the database
 	        { 
                         // update database info on this game server; no checks are performed
-	                $result = mysql_query( 'UPDATE glestgamestats SET ' .
-		                'gameUUID=\''                           . mysql_real_escape_string( $gameUUID )          . '\', ' .
-                                'tech=\''                               . mysql_real_escape_string( $tech )      . '\', ' .
-		                'factionCount=\''                       . mysql_real_escape_string( $factionCount ) . '\', ' .
-		                'framesPlayed=\''                       . mysql_real_escape_string( $framesPlayed )       . '\', ' .
-		                'framesToCalculatePlaytime=\''          . mysql_real_escape_string( $framesToCalculatePlaytime )              . '\', ' .
-		                'maxConcurrentUnitCount=\''             . mysql_real_escape_string( $maxConcurrentUnitCount )               . '\', ' .
-		                'totalEndGameConcurrentUnitCount=\''    . mysql_real_escape_string( $totalEndGameConcurrentUnitCount )           . '\', ' .
-		                'isHeadlessServer=\''                   . mysql_real_escape_string( $isHeadlessServer )       . '\', ' .
+	                $result = mysqli_query( Registry::$mysqliLink, 'UPDATE glestgamestats SET ' .
+		                'gameUUID=\''                           . mysqli_real_escape_string(Registry::$mysqliLink, $gameUUID )          . '\', ' .
+                                'tech=\''                               . mysqli_real_escape_string(Registry::$mysqliLink, $tech )      . '\', ' .
+		                'factionCount=\''                       . mysqli_real_escape_string(Registry::$mysqliLink, $factionCount ) . '\', ' .
+		                'framesPlayed=\''                       . mysqli_real_escape_string(Registry::$mysqliLink, $framesPlayed )       . '\', ' .
+		                'framesToCalculatePlaytime=\''          . mysqli_real_escape_string(Registry::$mysqliLink, $framesToCalculatePlaytime )              . '\', ' .
+		                'maxConcurrentUnitCount=\''             . mysqli_real_escape_string(Registry::$mysqliLink, $maxConcurrentUnitCount )               . '\', ' .
+		                'totalEndGameConcurrentUnitCount=\''    . mysqli_real_escape_string(Registry::$mysqliLink, $totalEndGameConcurrentUnitCount )           . '\', ' .
+		                'isHeadlessServer=\''                   . mysqli_real_escape_string(Registry::$mysqliLink, $isHeadlessServer )       . '\', ' .
 		                'lasttime='            . 'now()'                                        .    ' ' .
 		                'WHERE ' . $whereClause . ';');
 
@@ -102,15 +102,15 @@
 	        else                                        // this game server is not listed in the database, yet
 	        { // check whether this game server is available from the Internet; if it is, add it to the database
                         // update database info on this game server; no checks are performed
-	                $result = mysql_query( 'INSERT INTO glestgamestats SET ' .
-		                'gameUUID=\''                           . mysql_real_escape_string( $gameUUID )          . '\', ' .
-                                'tech=\''                               . mysql_real_escape_string( $tech )      . '\', ' .
-		                'factionCount=\''                       . mysql_real_escape_string( $factionCount ) . '\', ' .
-		                'framesPlayed=\''                       . mysql_real_escape_string( $framesPlayed )       . '\', ' .
-		                'framesToCalculatePlaytime=\''          . mysql_real_escape_string( $framesToCalculatePlaytime )              . '\', ' .
-		                'maxConcurrentUnitCount=\''             . mysql_real_escape_string( $maxConcurrentUnitCount )               . '\', ' .
-		                'totalEndGameConcurrentUnitCount=\''    . mysql_real_escape_string( $totalEndGameConcurrentUnitCount )           . '\', ' .
-		                'isHeadlessServer=\''                   . mysql_real_escape_string( $isHeadlessServer )       . '\';');
+	                $result = mysqli_query( Registry::$mysqliLink, 'INSERT INTO glestgamestats SET ' .
+		                'gameUUID=\''                           . mysqli_real_escape_string(Registry::$mysqliLink, $gameUUID )          . '\', ' .
+                                'tech=\''                               . mysqli_real_escape_string(Registry::$mysqliLink, $tech )      . '\', ' .
+		                'factionCount=\''                       . mysqli_real_escape_string(Registry::$mysqliLink, $factionCount ) . '\', ' .
+		                'framesPlayed=\''                       . mysqli_real_escape_string(Registry::$mysqliLink, $framesPlayed )       . '\', ' .
+		                'framesToCalculatePlaytime=\''          . mysqli_real_escape_string(Registry::$mysqliLink, $framesToCalculatePlaytime )              . '\', ' .
+		                'maxConcurrentUnitCount=\''             . mysqli_real_escape_string(Registry::$mysqliLink, $maxConcurrentUnitCount )               . '\', ' .
+		                'totalEndGameConcurrentUnitCount=\''    . mysqli_real_escape_string(Registry::$mysqliLink, $totalEndGameConcurrentUnitCount )           . '\', ' .
+		                'isHeadlessServer=\''                   . mysqli_real_escape_string(Registry::$mysqliLink, $isHeadlessServer )       . '\';');
 
                         if (!$result) {
                                 die('part 2a: Invalid query: ' . mysql_error());
@@ -209,12 +209,12 @@
 
                         if($player_statsCount[0] > 0)
                         {
-                                $result = mysql_query( 'UPDATE glestgameplayerstats SET ' .
-		                                'gameUUID=\''             . mysql_real_escape_string( $gameUUID )          . '\', ' .
+                                $result = mysqli_query( Registry::$mysqliLink, 'UPDATE glestgameplayerstats SET ' .
+		                                'gameUUID=\''             . mysqli_real_escape_string(Registry::$mysqliLink, $gameUUID )          . '\', ' .
 		                                'factionIndex='           . $factionIndex       . ', ' .
                                                 'controlType='            . $controlType        . ', ' .
                                                 'resourceMultiplier='     . $resourceMultiplier . ', ' .
-                                                'factionTypeName=\''      . mysql_real_escape_string( $factionTypeName ) . '\', ' .
+                                                'factionTypeName=\''      . mysqli_real_escape_string(Registry::$mysqliLink, $factionTypeName ) . '\', ' .
                                                 'personalityType='        . $personalityType    . ', ' .
                                                 'teamIndex='              . $teamIndex          . ', ' .
                                                 'wonGame='                . $wonGame            . ', ' .
@@ -223,11 +223,11 @@
                                                 'deathCount='             . $deathCount         . ', ' .
                                                 'unitsProducedCount='     . $unitsProducedCount . ', ' .
                                                 'resourceHarvestedCount=' . $resourceHarvestedCount . ', ' .
-                                                'playerName=\''           . mysql_real_escape_string( $playerName ) . '\', ' .
+                                                'playerName=\''           . mysqli_real_escape_string(Registry::$mysqliLink, $playerName ) . '\', ' .
                                                 'quitBeforeGameEnd='      . $quitBeforeGameEnd  . ', ' .
                                                 'quitTime='               . $quitTime           . ', ' .
-                                                'playerUUID=\''           . mysql_real_escape_string( $playerUUID ) . '\', ' .
-                                                'platform=\''             . mysql_real_escape_string( $playerPlatform ) . '\', ' .
+                                                'playerUUID=\''           . mysqli_real_escape_string(Registry::$mysqliLink, $playerUUID ) . '\', ' .
+                                                'platform=\''             . mysqli_real_escape_string(Registry::$mysqliLink, $playerPlatform ) . '\', ' .
 	                                        'lasttime='               . 'now()'             . ' ' .
 	                                        'WHERE ' . $whereClause . ' AND factionIndex = ' . $factionIndex . ';');
 
@@ -240,12 +240,12 @@
                         }
                         else
                         {
-	                        $result = mysql_query( 'INSERT INTO glestgameplayerstats SET ' .
-		                        'gameUUID=\''             . mysql_real_escape_string( $gameUUID )          . '\', ' .
+	                        $result = mysqli_query( Registry::$mysqliLink, 'INSERT INTO glestgameplayerstats SET ' .
+		                        'gameUUID=\''             . mysqli_real_escape_string(Registry::$mysqliLink, $gameUUID )          . '\', ' .
 		                        'factionIndex='           . $factionIndex       . ', ' .
                                         'controlType='            . $controlType        . ', ' .
                                         'resourceMultiplier='     . $resourceMultiplier . ', ' .
-                                        'factionTypeName=\''      . mysql_real_escape_string( $factionTypeName ) . '\', ' .
+                                        'factionTypeName=\''      . mysqli_real_escape_string(Registry::$mysqliLink, $factionTypeName ) . '\', ' .
                                         'personalityType='        . $personalityType    . ', ' .
                                         'teamIndex='              . $teamIndex          . ', ' .
                                         'wonGame='                . $wonGame            . ', ' .
@@ -254,11 +254,11 @@
                                         'deathCount='             . $deathCount         . ', ' .
                                         'unitsProducedCount='     . $unitsProducedCount . ', ' .
                                         'resourceHarvestedCount=' . $resourceHarvestedCount . ', ' .
-                                        'playerName=\''           . mysql_real_escape_string( $playerName ) . '\', ' .
+                                        'playerName=\''           . mysqli_real_escape_string(Registry::$mysqliLink, $playerName ) . '\', ' .
                                         'quitBeforeGameEnd='      . $quitBeforeGameEnd  . ', ' .
                                         'quitTime='               . $quitTime           . ', ' .
-                                        'platform=\''             . mysql_real_escape_string( $playerPlatform ) . '\', ' .
-                                        'playerUUID=\''           . mysql_real_escape_string( $playerUUID ) . '\';');
+                                        'platform=\''             . mysqli_real_escape_string(Registry::$mysqliLink, $playerPlatform ) . '\', ' .
+                                        'playerUUID=\''           . mysqli_real_escape_string(Registry::$mysqliLink, $playerUUID ) . '\';');
 
                                 if (!$result) {
                                     die('part 2b: Invalid query: ' . mysql_error());
@@ -269,6 +269,6 @@
                       }
                 }
 
-	        db_disconnect( DB_LINK );
+	        db_disconnect( Registry::$mysqliLink );
         }
 ?>

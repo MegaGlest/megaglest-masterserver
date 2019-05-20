@@ -14,5 +14,5 @@
 
 	cleanupServerList();
 
-	db_disconnect( DB_LINK );
+	db_disconnect( Registry::$mysqliLink );
 ?>

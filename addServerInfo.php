@@ -72,15 +72,15 @@
 	cleanupServerList();
 
         $gameUUID = "";
-        $whereClause = 'ip=\'' . mysql_real_escape_string( $remote_ip ) . '\' && externalServerPort=\'' . mysql_real_escape_string( $service_port ) . '\';';
+        $whereClause = 'ip=\'' . mysqli_real_escape_string(Registry::$mysqliLink, $remote_ip ) . '\' && externalServerPort=\'' . mysqli_real_escape_string(Registry::$mysqliLink, $service_port ) . '\';';
         if ( isset( $_GET['gameUUID'] ) ) {
                 $gameUUID  = (string) clean_str( $_GET['gameUUID'] );
-                $whereClause = 'gameUUID=\'' . mysql_real_escape_string( $gameUUID ) . '\';';
+                $whereClause = 'gameUUID=\'' . mysqli_real_escape_string(Registry::$mysqliLink, $gameUUID ) . '\';';
         }
         // echo '#1 ' . $whereClause;
 
-	$server_in_db = @mysql_query( 'SELECT ip, externalServerPort FROM glestserver WHERE ' . $whereClause );
-       	$server       = @mysql_fetch_row( $server_in_db );
+	$server_in_db = @mysqli_query(Registry::$mysqliLink, 'SELECT ip, externalServerPort FROM glestserver WHERE ' . $whereClause );
+       	$server       = @mysqli_fetch_row( $server_in_db );
 
 	// Representation starts here (but it should really be starting much later, there is way too much logic behind this point)
 	header( 'Content-Type: text/plain; charset=utf-8' );
@@ -90,26 +90,26 @@
                 if($gameCmd == "gameOver" && $gameUUID != "") 
                 {
                         // update database info on this game server; no checks are performed
-		        mysql_query( 'UPDATE glestserver SET ' .
-			        'glestVersion=\''      . mysql_real_escape_string( $glestVersion )      . '\', ' .
-			        'platform=\''          . mysql_real_escape_string( $platform )          . '\', ' .
-			        'binaryCompileDate=\'' . mysql_real_escape_string( $binaryCompileDate ) . '\', ' .
-			        'serverTitle=\''       . mysql_real_escape_string( $serverTitle )       . '\', ' .
-			        'tech=\''              . mysql_real_escape_string( $tech )              . '\', ' .
-			        'map=\''               . mysql_real_escape_string( $map )               . '\', ' .
-			        'tileset=\''           . mysql_real_escape_string( $tileset )           . '\', ' .
-			        'activeSlots=\''       . mysql_real_escape_string( $activeSlots )       . '\', ' .
-			        'networkSlots=\''      . mysql_real_escape_string( $networkSlots )      . '\', ' .
-			        'connectedClients=\''  . mysql_real_escape_string( $connectedClients )  . '\', ' .
-			        'externalServerPort=\''. mysql_real_escape_string( $service_port )      . '\', ' .
-			        'status=\''            . mysql_real_escape_string( $status )            . '\', ' .
+		        mysqli_query(Registry::$mysqliLink, 'UPDATE glestserver SET ' .
+			        'glestVersion=\''      . mysqli_real_escape_string(Registry::$mysqliLink, $glestVersion )      . '\', ' .
+			        'platform=\''          . mysqli_real_escape_string(Registry::$mysqliLink, $platform )          . '\', ' .
+			        'binaryCompileDate=\'' . mysqli_real_escape_string(Registry::$mysqliLink, $binaryCompileDate ) . '\', ' .
+			        'serverTitle=\''       . mysqli_real_escape_string(Registry::$mysqliLink, $serverTitle )       . '\', ' .
+			        'tech=\''              . mysqli_real_escape_string(Registry::$mysqliLink, $tech )              . '\', ' .
+			        'map=\''               . mysqli_real_escape_string(Registry::$mysqliLink, $map )               . '\', ' .
+			        'tileset=\''           . mysqli_real_escape_string(Registry::$mysqliLink, $tileset )           . '\', ' .
+			        'activeSlots=\''       . mysqli_real_escape_string(Registry::$mysqliLink, $activeSlots )       . '\', ' .
+			        'networkSlots=\''      . mysqli_real_escape_string(Registry::$mysqliLink, $networkSlots )      . '\', ' .
+			        'connectedClients=\''  . mysqli_real_escape_string(Registry::$mysqliLink, $connectedClients )  . '\', ' .
+			        'externalServerPort=\''. mysqli_real_escape_string(Registry::$mysqliLink, $service_port )      . '\', ' .
+			        'status=\''            . mysqli_real_escape_string(Registry::$mysqliLink, $status )            . '\', ' .
 			        'lasttime='            . 'now()'                                        .    ' ' .
 			        'WHERE ' . $whereClause);
                 }
                 else 
                 {
                         // delete server; no checks are performed
-		        mysql_query( 'DELETE FROM glestserver WHERE ' . $whereClause );
+		        mysqli_query(Registry::$mysqliLink, 'DELETE FROM glestserver WHERE ' . $whereClause );
                 }
 		echo 'OK' ;
 	}                                                                      // game in progress
@@ -119,10 +119,10 @@
                 $game_host_port = $server[1];
 
                 if ( $gameUUID != "" ) {
-	                $server_in_db_not_timedout = @mysql_query( 'DELETE FROM glestserver WHERE ip=\'' . 
-                               mysql_real_escape_string( $remote_ip ) . '\' AND externalServerPort=\'' . 
-                               mysql_real_escape_string( $service_port ) . '\' AND gameUUID <> \'' . 
-                               mysql_real_escape_string( $gameUUID ) . '\' AND status in (0,1,2);' );
+	                $server_in_db_not_timedout = @mysqli_query(Registry::$mysqliLink, 'DELETE FROM glestserver WHERE ip=\'' . 
+                               mysqli_real_escape_string(Registry::$mysqliLink, $remote_ip ) . '\' AND externalServerPort=\'' . 
+                               mysqli_real_escape_string(Registry::$mysqliLink, $service_port ) . '\' AND gameUUID <> \'' . 
+                               mysqli_real_escape_string(Registry::$mysqliLink, $gameUUID ) . '\' AND status in (0,1,2);' );
                 }
 
 	        if ( ($remote_ip == $game_host_ip && $service_port == $game_host_port) || $status == 2 )    // this server is contained in the database
@@ -130,19 +130,19 @@
                         if ( $remote_ip == $game_host_ip && $service_port == $game_host_port)
                         {
                                 // update database info on this game server; no checks are performed
-		                mysql_query( 'UPDATE glestserver SET ' .
-			                'glestVersion=\''      . mysql_real_escape_string( $glestVersion )      . '\', ' .
-			                'platform=\''          . mysql_real_escape_string( $platform )          . '\', ' .
-			                'binaryCompileDate=\'' . mysql_real_escape_string( $binaryCompileDate ) . '\', ' .
-			                'serverTitle=\''       . mysql_real_escape_string( $serverTitle )       . '\', ' .
-			                'tech=\''              . mysql_real_escape_string( $tech )              . '\', ' .
-			                'map=\''               . mysql_real_escape_string( $map )               . '\', ' .
-			                'tileset=\''           . mysql_real_escape_string( $tileset )           . '\', ' .
-			                'activeSlots=\''       . mysql_real_escape_string( $activeSlots )       . '\', ' .
-			                'networkSlots=\''      . mysql_real_escape_string( $networkSlots )      . '\', ' .
-			                'connectedClients=\''  . mysql_real_escape_string( $connectedClients )  . '\', ' .
-			                'externalServerPort=\''. mysql_real_escape_string( $service_port )      . '\', ' .
-			                'status=\''            . mysql_real_escape_string( $status )            . '\', ' .
+		                mysqli_query(Registry::$mysqliLink, 'UPDATE glestserver SET ' .
+			                'glestVersion=\''      . mysqli_real_escape_string(Registry::$mysqliLink, $glestVersion )      . '\', ' .
+			                'platform=\''          . mysqli_real_escape_string(Registry::$mysqliLink, $platform )          . '\', ' .
+			                'binaryCompileDate=\'' . mysqli_real_escape_string(Registry::$mysqliLink, $binaryCompileDate ) . '\', ' .
+			                'serverTitle=\''       . mysqli_real_escape_string(Registry::$mysqliLink, $serverTitle )       . '\', ' .
+			                'tech=\''              . mysqli_real_escape_string(Registry::$mysqliLink, $tech )              . '\', ' .
+			                'map=\''               . mysqli_real_escape_string(Registry::$mysqliLink, $map )               . '\', ' .
+			                'tileset=\''           . mysqli_real_escape_string(Registry::$mysqliLink, $tileset )           . '\', ' .
+			                'activeSlots=\''       . mysqli_real_escape_string(Registry::$mysqliLink, $activeSlots )       . '\', ' .
+			                'networkSlots=\''      . mysqli_real_escape_string(Registry::$mysqliLink, $networkSlots )      . '\', ' .
+			                'connectedClients=\''  . mysqli_real_escape_string(Registry::$mysqliLink, $connectedClients )  . '\', ' .
+			                'externalServerPort=\''. mysqli_real_escape_string(Registry::$mysqliLink, $service_port )      . '\', ' .
+			                'status=\''            . mysqli_real_escape_string(Registry::$mysqliLink, $status )            . '\', ' .
 			                'lasttime='            . 'now()'                                        .    ' ' .
 			                'WHERE ' . $whereClause);
 		                //updateServer($remote_ip, $service_port, $serverTitle, $connectedClients, $networkSlots);
@@ -165,25 +165,25 @@
 
 	                        // cleanup old entrys with same remote port and ip
 	                        // I hope this fixes those double entrys of servers
-	                        mysql_query( 'DELETE FROM glestserver WHERE '. $whereClause );
+	                        mysqli_query(Registry::$mysqliLink, 'DELETE FROM glestserver WHERE '. $whereClause );
 
 	                        // insert new entry
-	                        mysql_query( 'INSERT INTO glestserver SET ' .
-		                        'glestVersion=\''      . mysql_real_escape_string( $glestVersion )      . '\', ' .
-		                        'platform=\''          . mysql_real_escape_string( $platform )          . '\', ' .
-		                        'binaryCompileDate=\'' . mysql_real_escape_string( $binaryCompileDate ) . '\', ' .
-		                        'serverTitle=\''       . mysql_real_escape_string( $serverTitle )       . '\', ' .
-		                        'ip=\''                . mysql_real_escape_string( $remote_ip )         . '\', ' .
-		                        'tech=\''              . mysql_real_escape_string( $tech )              . '\', ' .
-		                        'map=\''               . mysql_real_escape_string( $map )               . '\', ' .
-		                        'tileset=\''           . mysql_real_escape_string( $tileset )           . '\', ' .
-		                        'activeSlots=\''       . mysql_real_escape_string( $activeSlots )       . '\', ' .
-		                        'networkSlots=\''      . mysql_real_escape_string( $networkSlots )      . '\', ' .
-		                        'connectedClients=\''  . mysql_real_escape_string( $connectedClients )  . '\', ' .
-		                        'externalServerPort=\''. mysql_real_escape_string( $service_port )      . '\', ' .
-		                        'country=\''           . mysql_real_escape_string( $country )           . '\', ' .
-		                        'status=\''            . mysql_real_escape_string( $status )            . '\', ' .
-                                        'gameUUID=\''          . mysql_real_escape_string( $gameUUID )     . '\';'
+	                        mysqli_query(Registry::$mysqliLink, 'INSERT INTO glestserver SET ' .
+		                        'glestVersion=\''      . mysqli_real_escape_string(Registry::$mysqliLink, $glestVersion )      . '\', ' .
+		                        'platform=\''          . mysqli_real_escape_string(Registry::$mysqliLink, $platform )          . '\', ' .
+		                        'binaryCompileDate=\'' . mysqli_real_escape_string(Registry::$mysqliLink, $binaryCompileDate ) . '\', ' .
+		                        'serverTitle=\''       . mysqli_real_escape_string(Registry::$mysqliLink, $serverTitle )       . '\', ' .
+		                        'ip=\''                . mysqli_real_escape_string(Registry::$mysqliLink, $remote_ip )         . '\', ' .
+		                        'tech=\''              . mysqli_real_escape_string(Registry::$mysqliLink, $tech )              . '\', ' .
+		                        'map=\''               . mysqli_real_escape_string(Registry::$mysqliLink, $map )               . '\', ' .
+		                        'tileset=\''           . mysqli_real_escape_string(Registry::$mysqliLink, $tileset )           . '\', ' .
+		                        'activeSlots=\''       . mysqli_real_escape_string(Registry::$mysqliLink, $activeSlots )       . '\', ' .
+		                        'networkSlots=\''      . mysqli_real_escape_string(Registry::$mysqliLink, $networkSlots )      . '\', ' .
+		                        'connectedClients=\''  . mysqli_real_escape_string(Registry::$mysqliLink, $connectedClients )  . '\', ' .
+		                        'externalServerPort=\''. mysqli_real_escape_string(Registry::$mysqliLink, $service_port )      . '\', ' .
+		                        'country=\''           . mysqli_real_escape_string(Registry::$mysqliLink, $country )           . '\', ' .
+		                        'status=\''            . mysqli_real_escape_string(Registry::$mysqliLink, $status )            . '\', ' .
+                                        'gameUUID=\''          . mysqli_real_escape_string(Registry::$mysqliLink, $gameUUID )     . '\';'
 	                        );
 	                        echo 'OK';
                         }
@@ -282,29 +282,29 @@
 
 			        // cleanup old entrys with same remote port and ip
 			        // I hope this fixes those double entrys of servers
-			        mysql_query( 'DELETE FROM glestserver WHERE '. $whereClause );
+			        mysqli_query(Registry::$mysqliLink, 'DELETE FROM glestserver WHERE '. $whereClause );
 			        // insert new entry
-			        mysql_query( 'INSERT INTO glestserver SET ' .
-				        'glestVersion=\''      . mysql_real_escape_string( $glestVersion )      . '\', ' .
-				        'platform=\''          . mysql_real_escape_string( $platform )          . '\', ' .
-				        'binaryCompileDate=\'' . mysql_real_escape_string( $binaryCompileDate ) . '\', ' .
-				        'serverTitle=\''       . mysql_real_escape_string( $serverTitle )       . '\', ' .
-				        'ip=\''                . mysql_real_escape_string( $remote_ip )         . '\', ' .
-				        'tech=\''              . mysql_real_escape_string( $tech )              . '\', ' .
-				        'map=\''               . mysql_real_escape_string( $map )               . '\', ' .
-				        'tileset=\''           . mysql_real_escape_string( $tileset )           . '\', ' .
-				        'activeSlots=\''       . mysql_real_escape_string( $activeSlots )       . '\', ' .
-				        'networkSlots=\''      . mysql_real_escape_string( $networkSlots )      . '\', ' .
-				        'connectedClients=\''  . mysql_real_escape_string( $connectedClients )  . '\', ' .
-				        'externalServerPort=\''. mysql_real_escape_string( $service_port )      . '\', ' .
-				        'country=\''           . mysql_real_escape_string( $country )           . '\', ' .
-				        'status=\''            . mysql_real_escape_string( $status )            . '\', ' .
-                                        'gameUUID=\''          . mysql_real_escape_string( $gameUUID )          . '\';'
+			        mysqli_query(Registry::$mysqliLink, 'INSERT INTO glestserver SET ' .
+				        'glestVersion=\''      . mysqli_real_escape_string(Registry::$mysqliLink, $glestVersion )      . '\', ' .
+				        'platform=\''          . mysqli_real_escape_string(Registry::$mysqliLink, $platform )          . '\', ' .
+				        'binaryCompileDate=\'' . mysqli_real_escape_string(Registry::$mysqliLink, $binaryCompileDate ) . '\', ' .
+				        'serverTitle=\''       . mysqli_real_escape_string(Registry::$mysqliLink, $serverTitle )       . '\', ' .
+				        'ip=\''                . mysqli_real_escape_string(Registry::$mysqliLink, $remote_ip )         . '\', ' .
+				        'tech=\''              . mysqli_real_escape_string(Registry::$mysqliLink, $tech )              . '\', ' .
+				        'map=\''               . mysqli_real_escape_string(Registry::$mysqliLink, $map )               . '\', ' .
+				        'tileset=\''           . mysqli_real_escape_string(Registry::$mysqliLink, $tileset )           . '\', ' .
+				        'activeSlots=\''       . mysqli_real_escape_string(Registry::$mysqliLink, $activeSlots )       . '\', ' .
+				        'networkSlots=\''      . mysqli_real_escape_string(Registry::$mysqliLink, $networkSlots )      . '\', ' .
+				        'connectedClients=\''  . mysqli_real_escape_string(Registry::$mysqliLink, $connectedClients )  . '\', ' .
+				        'externalServerPort=\''. mysqli_real_escape_string(Registry::$mysqliLink, $service_port )      . '\', ' .
+				        'country=\''           . mysqli_real_escape_string(Registry::$mysqliLink, $country )           . '\', ' .
+				        'status=\''            . mysqli_real_escape_string(Registry::$mysqliLink, $status )            . '\', ' .
+                                        'gameUUID=\''          . mysqli_real_escape_string(Registry::$mysqliLink, $gameUUID )          . '\';'
 			        );
 			        echo 'OK';
 			        //addLatestServer($remote_ip, $service_port, $serverTitle, $connectedClients, $networkSlots);
 		        }
 	        }
         }
-	db_disconnect( DB_LINK );
+	db_disconnect( Registry::$mysqliLink );
 ?>

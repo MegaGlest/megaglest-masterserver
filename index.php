@@ -3,5 +3,9 @@
 //	The MegaGlest Team, under GNU GPL v3.0
 // ==============================================================
 
+class Registry {
+    static public $mysqliLink = null;
+}
+
 require_once('showServers.php');
 ?>

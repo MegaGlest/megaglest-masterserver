@@ -32,27 +32,27 @@
 	        // consider replacing this by a cron job
 	        cleanupServerList();
 
-                $whereClause = 'gameUUID=\'' . mysql_real_escape_string( $gameUUID ) . '\'';
+                $whereClause = 'gameUUID=\'' . mysqli_real_escape_string(Registry::$mysqliLink, $gameUUID ) . '\'';
 
-	        $stats_in_db = mysql_query( 'SELECT * FROM glestgamestats WHERE ' . $whereClause . ';');
+	        $stats_in_db = mysqli_query( Registry::$mysqliLink, 'SELECT * FROM glestgamestats WHERE ' . $whereClause . ';');
 	        $all_stats = array();
-	        while ( $stats = mysql_fetch_array( $stats_in_db ) )
+	        while ( $stats = mysqli_fetch_array( $stats_in_db ) )
 	        {
 		        array_push( $all_stats, $stats );
 	        }
 	        unset( $stats_in_db );
 	        unset( $stats );
 
-	        $player_stats_in_db = mysql_query( 'SELECT * FROM glestgameplayerstats WHERE ' . $whereClause . ' ORDER BY factionIndex;');
+	        $player_stats_in_db = mysqli_query( Registry::$mysqliLink, 'SELECT * FROM glestgameplayerstats WHERE ' . $whereClause . ' ORDER BY factionIndex;');
 	        $all_player_stats = array();
-	        while ( $player_stats = mysql_fetch_array( $player_stats_in_db ) )
+	        while ( $player_stats = mysqli_fetch_array( $player_stats_in_db ) )
 	        {
 		        array_push( $all_player_stats, $player_stats );
 	        }
 	        unset( $player_stats_in_db );
 	        unset( $player_stats );
 
-	        db_disconnect( DB_LINK );
+	        db_disconnect( Registry::$mysqliLink );
 	        unset( $linkid );
 
 	        foreach( $all_stats as $stats )

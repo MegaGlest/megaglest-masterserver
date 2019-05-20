@@ -16,16 +16,16 @@
                 $glestVersion = "";
         }
 
-	$tilesets_in_db = mysql_db_query( MYSQL_DATABASE, 'SELECT * FROM glesttilesets WHERE disabled=0 ORDER BY tilesetname;' );
+	$tilesets_in_db = mysqli_query( Registry::$mysqliLink, 'SELECT * FROM glesttilesets WHERE disabled=0 ORDER BY tilesetname;' );
 	$all_tilesets = array();
-	while ( $tileset = mysql_fetch_array( $tilesets_in_db ) )
+	while ( $tileset = mysqli_fetch_array( $tilesets_in_db ) )
 	{
 		array_push( $all_tilesets, $tileset );
 	}
 	unset( $tilesets_in_db );
 	unset( $tileset );
 
-	db_disconnect( DB_LINK );
+	db_disconnect( Registry::$mysqliLink );
 
 	// Representation starts here
 	header( 'Content-Type: text/plain; charset=utf-8' );
