@@ -53,7 +53,8 @@ INSTALLATION
    mysql -u megaglest-master -p megaglest-master < install/scheme_mysql.sql
 
 5. On the webserver, copy or move config.php.default to config.php and edit it
-   to reflect the MySQL connection parameters and game title.
+   to reflect the MySQL connection parameters and game title. Optionally copy
+   or move robots.txt.default to robots.txt to prevent search engine indexing.
 
 6. Set up the webserver to allow access to, and set up PHP to execute, the
    PHP files you placed on your webserver. Practically you may want to create
