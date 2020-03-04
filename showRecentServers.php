@@ -4,6 +4,8 @@
 // ==============================================================
 
         define( 'INCLUSION_PERMITTED', true );
+
+	require_once( 'registry.php' );
         require_once( 'config.php' );
         require_once( 'functions.php' );
 

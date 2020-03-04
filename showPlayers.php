@@ -5,8 +5,10 @@
 
 	define( 'INCLUSION_PERMITTED', true );
 
+	require_once( 'registry.php' );
 	require_once( 'config.php' );
 	require_once( 'functions.php' );
+
 	define( 'DB_LINK', db_connect() );
 
 	// $period = $_GET["period"];

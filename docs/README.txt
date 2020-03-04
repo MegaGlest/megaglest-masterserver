@@ -36,32 +36,34 @@ INSTALLATION
    · MySQL Community Server/Edition 5.1 (Oracle)
    · MySQL Server 5.5 (Percona)
 
-2. Create a new MySQL database and a user who has has all standard permissions
-   to work on this database after authentication.
+2. Copy all files to your webserver. Replace the images in images/ by some
+   which match your game title.
+
+3. On your database server, create a new MySQL database and a user who has all
+   standard permissions to work on this database after authentication.
    Example:
    CREATE DATABASE `megaglest-master`;
    CREATE USER `megaglest-master`@`localhost` IDENTIFIED BY 'secret password';
    GRANT ALL ON `megaglest-master`.* TO `megaglest-master`@`localhost`;
    FLUSH PRIVILEGES;
 
-3. Copy all files (you can omit INSTALL and install/) to your webserver and
-   edit config.php to reflect the MySQL connection parameters and game title;
-   also replace the images in images/ by some which match your game title.
-
-4. Connect the new user to the new database, then execute the SQL statments in
-   install/scheme_mysql.sql.
-   Example:
+4. From the webserver, connect to the new database, authenticating as the new
+   user, then execute the SQL statments in install/scheme_mysql.sql.
+   Example (here, webserver and DB server are on the same system):
    mysql -u megaglest-master -p megaglest-master < install/scheme_mysql.sql
 
-5. Set up the webserver to allow access to, and set up PHP to execute, the
+5. On the webserver, copy or move config.php.default to config.php and edit it
+   to reflect the MySQL connection parameters and game title.
+
+6. Set up the webserver to allow access to, and set up PHP to execute, the
    PHP files you placed on your webserver. Practically you may want to create
    a new "VirtualHost"/"Server" and make sure it points to where you placed
    the files and can run PHP.
 
 To test and use this server with your MegaGlest engine based game, configure
-the "Masterserver" property in glestuser.ini (if it's MegaGlest) or glest.ini
-(if it's a different game).
+the "Masterserver" property in glestuser.ini (if it is MegaGlest) or glest.ini
+(if it is a different game).
 
 To add mods to the game mod menu, edit the database contents using your 
 favorite MySQL editor or develop a web based frontend to do so. In the latter
-case, please let us know about it and try to use a compatible license.
+case, please let us know about it and try to use a GPL compatible license.
