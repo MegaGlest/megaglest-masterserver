@@ -29,7 +29,7 @@
 		$timelimit = " and s.lasttime >= DATE_SUB(NOW(), INTERVAL 1 MONTH)  ";
 	}
 
-	$players_in_db = mysqli_query( Registry::$mysqliLink, 'select playername, count(*) as c, SEC_TO_TIME(sum(ggs.framesToCalculatePlaytime)/30) as playtime from glestgameplayerstats s , glestgamestats ggs where s.gameUUID=ggs.gameUUID and controltype>4 '.$timelimit.' group by playername having c >1 order by c desc,playername  LIMIT 100' );
+	$players_in_db = mysqli_query( Registry::$mysqliLink, 'select playername, count(*) as c,  concat( floor(sum(ggs.framesToCalculatePlaytime)/30/(60*60*24)), \' days  \'  , sec_to_time(mod(sum(ggs.framesToCalculatePlaytime)/30,60*60*24))) as playtime from glestgameplayerstats s , glestgamestats ggs where s.gameUUID=ggs.gameUUID and controltype>4 '.$timelimit.' group by playername having c >1 order by c desc,playername  LIMIT 100' );
 	$all_players = array();
 	while ( $players = mysqli_fetch_array( $players_in_db ) )
 	{
