@@ -13,33 +13,26 @@
 		//$code_entities_replace = array('','','','','','','','','','','','','','','','','','','','','');
 		$code_entities_match   = array('$','%','^','&','_','+','{','}','|','"','<','>','?','[',']','\\',';',"'",'/','+','~','`','=');
 		$code_entities_replace = array('','','','','','','','','','','','','');
-        
+
 		$text = str_replace( $code_entities_match, $code_entities_replace, $text );
 		return $text;
 	}
 
 	function db_connect()
 	{
-		if ( !is_null( Registry::$mysqliLink) ) {
+		if (!is_null(Registry::$mysqliLink)) {
 			return Registry::$mysqliLink;
 		}
 
-		// If we may use persistent MYSQL database server links...
-		if ( defined( 'MYSQL_LINK_PERSIST' ) && MYSQL_LINK_PERSIST === true ) 
-		{
-			// ...then reuse an existing link or create a new one, ...
-			$linkid = mysqli_pconnect( MYSQL_HOST, MYSQL_USER, MYSQL_PASSWORD );
-		}
-		else
-		{
-			// ...otherwise create a standard link
-			$linkid = mysqli_connect( MYSQL_HOST, MYSQL_USER, MYSQL_PASSWORD );
+		// Always use mysqli_connect (persistent connections are not supported this way in mysqli)
+		$linkid = mysqli_connect(MYSQL_HOST, MYSQL_USER, MYSQL_PASSWORD, MYSQL_DATABASE);
+
+		if (!$linkid) {
+			die('Database connection failed: ' . mysqli_connect_error());
 		}
 
 		Registry::$mysqliLink = $linkid;
-
-		mysqli_select_db( $linkid, MYSQL_DATABASE );
-		return -1;
+		return $linkid;
 	}
 
 	function db_disconnect( $linkid )
