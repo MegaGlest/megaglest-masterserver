@@ -24,6 +24,28 @@
 		$privacyPlease = 0;
 	}
 
+	// Helper to resolve country code honoring privacy preference.
+	function resolve_country( $ip, $privacyPlease ) {
+		if ( (int)$privacyPlease !== 0 ) {
+			return '';
+		}
+		// Prefer the geoip extension if available
+		if ( extension_loaded('geoip') ) {
+			$code = @geoip_country_code_by_name( $ip );
+			if ( $code !== false && $code !== null ) {
+				return $code;
+			}
+		}
+		// Fallback to a lightweight external lookup (best-effort, short timeout)
+		$url = 'http://ip-api.com/line/' . rawurlencode( $ip ) . '?fields=countryCode';
+		$ctx = stream_context_create(array('http' => array('timeout' => 2)));
+		$res = @file_get_contents( $url, false, $ctx );
+		if ( $res !== false ) {
+			return trim( $res );
+		}
+		return '';
+	}
+
 	// game info:
 	$serverTitle       = (string) clean_str( $_GET['serverTitle'] );
 	$remote_ip         = (string) clean_str( $_SERVER['REMOTE_ADDR'] );
@@ -153,17 +175,7 @@
                         else if ($status == 2)
                         {
 
-	                        if ( extension_loaded('geoip') ) {
-			
-		                        if ( $privacyPlease == 0 )
-		                        {
-			                        $country = geoip_country_code_by_name( $remote_ip );
-		                        }
-		                        else
-		                        {
-			                        $country = '';
-		                        }
-	                        }
+							$country = resolve_country( $remote_ip, $privacyPlease );
 
 	                        // cleanup old entrys with same remote port and ip
 	                        // I hope this fixes those double entrys of servers
@@ -270,17 +282,7 @@
 		        */
 		        else  // connection to game server succeeded, protocol verification succeeded
 		        { // add this game server to the database
-			        if ( extension_loaded('geoip') ) {
-					
-				        if ( $privacyPlease == 0 )
-				        {
-					        $country = geoip_country_code_by_name( $remote_ip );
-				        }
-				        else
-				        {
-					        $country = '';
-				        }
-			        }
+					$country = resolve_country( $remote_ip, $privacyPlease );
 
 			        // cleanup old entrys with same remote port and ip
 			        // I hope this fixes those double entrys of servers
