@@ -239,7 +239,7 @@ function timedRequest()
 					if(!firstLoop)
 					{
 						if((newServerList[identifier].free > 0 && !serverList[identifier] && statusCode == 0 && (serverList[identifier] === undefined || !serverList[identifier].title.startsWith("Headless ") || !serverList[identifier].title.startsWith("[H] "))) || // doesn't exist in old list
-							(newServerList[identifier].free > 0 && serverList[identifier].connectedClients == 0 && newServerList[identifier].connectedClients > 0 && statusCode == 0 && (serverList[identifier] !== undefined && (serverList[identifier].title.startsWith("Headless ") || serverList[identifier].title.startsWith("[H] ")))) // Headless server that previously had zero players
+							(newServerList[identifier].free > 0 && serverList[identifier].connectedClients == 0 && newServerList[identifier].connectedClients > 0 && statusCode == 0 && (serverList[identifier] !== undefined && (serverList[identifier].title.startsWith("Headless ") || serverList[identifier].title.startsWith("[H] "))))) // Headless server that previously had zero players
 						{
 							// Create notification
 							var notification = new Notification("Open server", {

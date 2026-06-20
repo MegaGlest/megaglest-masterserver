@@ -12,7 +12,7 @@
 	define( 'DB_LINK', db_connect() );
 
 	// allow for automatic refreshing in web browser by appending '?refresh=VALUE', where VALUE is a numeric value in seconds.
-	if ( isset( $_GET['refresh'] ) ) { define( 'REFRESH_INTERVAL', (int) $_GET['refresh'] ); } else { define( 'REFRESH_INTERVAL', '' ); }
+	if ( isset( $_GET['refresh'] ) ) { define( 'REFRESH_INTERVAL', max(0, (int) $_GET['refresh']) ); } else { define( 'REFRESH_INTERVAL', 0 ); }
 
 	// allow for filtering by gameserver version
 	if ( isset( $_GET['version'] ) ) { define( 'FILTER_VERSION', $_GET['version'] ); } else { define( 'FILTER_VERSION', '' ); }
@@ -23,7 +23,7 @@
 	if ( MGG_HOST != '' ) {
 		$body = MGG_HOST . ':' . MGG_PORT;
 		header( 'Content-Type: application/x-megaglest-gameserver; charset=utf-8' );
-		header( 'Content-Disposition: attachment; filename="megaglest_gameserver.mgg' );
+		header( 'Content-Disposition: attachment; filename="megaglest_gameserver.mgg"' );
 		header( 'Content-Length: ' . strlen( $body ));
 		header( 'Accept-Ranges: bytes' );
 		echo $body;
@@ -47,8 +47,8 @@
 
 	// Representation starts here
 	header( 'Content-Type: text/html; charset=utf-8' );
-	if ( REFRESH_INTERVAL != 0 ) {
-		if ( REFRESH_INTERVAL <= 10 ) {
+	if ( REFRESH_INTERVAL > 0 ) {
+		if ( REFRESH_INTERVAL < 10 ) {
 			header( 'Refresh: 10' );
 		} else {
 			header( 'Refresh: ' . REFRESH_INTERVAL );
