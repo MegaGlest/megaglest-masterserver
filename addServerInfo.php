@@ -36,12 +36,14 @@
 				return $code;
 			}
 		}
-		// Fallback to a lightweight external lookup (best-effort, short timeout)
-		$url = 'http://ip-api.com/line/' . rawurlencode( $ip ) . '?fields=countryCode';
-		$ctx = stream_context_create(array('http' => array('timeout' => 2)));
-		$res = @file_get_contents( $url, false, $ctx );
-		if ( $res !== false ) {
-			return trim( $res );
+		// Optional fallback to a lightweight external lookup (best-effort, short timeout)
+		if ( defined('ALLOW_FALLBACK_GEOLOCATION_LOOKUP') && ALLOW_FALLBACK_GEOLOCATION_LOOKUP === true ) {
+			$url = 'http://ip-api.com/line/' . rawurlencode( $ip ) . '?fields=countryCode';
+			$ctx = stream_context_create(array('http' => array('timeout' => 2)));
+			$res = @file_get_contents( $url, false, $ctx );
+			if ( $res !== false ) {
+				return trim( $res );
+			}
 		}
 		return '';
 	}
