@@ -29,11 +29,24 @@
 		if ( (int)$privacyPlease !== 0 ) {
 			return '';
 		}
-		// Prefer the geoip extension if available
-		if ( extension_loaded('geoip') ) {
-			$code = @geoip_country_code_by_name( $ip );
-			if ( $code !== false && $code !== null ) {
-				return $code;
+		
+		// Check for the modern geoip2 extension
+		if ( extension_loaded('geoip2') ) {
+			// Path to your downloaded MaxMind database file
+			$dbPath = '/var/www/html/GeoLite2-Country.mmdb'; 
+			
+			if (file_exists($dbPath)) {
+				try {
+					// GeoIP2 uses an object-oriented approach
+					$reader = new \GeoIp2\Database\Reader($dbPath);
+					$record = $reader->country($ip);
+					
+					if (isset($record->country->isoCode)) {
+						return $record->country->isoCode;
+					}
+				} catch (\Exception $e) {
+					// Handle IP not found or database errors silently
+				}
 			}
 		}
 		// Optional fallback to a lightweight external lookup (best-effort, short timeout)
