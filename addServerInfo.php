@@ -25,49 +25,39 @@
 	}
 
 	// Helper to resolve country code honoring privacy preference.
-	function resolve_country( $ip, $privacyPlease ) {
-		if ( (int)$privacyPlease !== 0 ) {
-			return '';
-		}
+    function resolve_country( $ip, $privacyPlease ) {
+        if ( (int)$privacyPlease !== 0 ) {
+            return '';
+        }
 
-		if ( extension_loaded('maxminddb') ) {
-			$dbPath = defined('GEOIP_DB_PATH') && GEOIP_DB_PATH !== '' ? GEOIP_DB_PATH : '';
-			if ( $dbPath === '' ) {
-				error_log('GeoIP2 Error: Database path is not configured.');
-				return '';
-			}
-			
-			if (!file_exists($dbPath)) {
-				error_log("GeoIP2 Error: Database file not found at " . $dbPath);
-				return '';
-			}
+        // Try MaxMind Local DB first
+        if ( extension_loaded('maxminddb') ) {
+            $dbPath = defined('GEOIP_DB_PATH') && GEOIP_DB_PATH !== '' ? GEOIP_DB_PATH : '';
+            
+            // Soft check: Only attempt lookup if path is configured and file exists
+            if ( $dbPath !== '' && file_exists($dbPath) ) {
+                $record = maxminddb_lookup_string($dbPath, $ip);
 
-			try {
-				$reader = new \GeoIp2\Database\Reader($dbPath);
-				$record = $reader->country($ip);
-				
-				if (isset($record->country->isoCode)) {
-					return $record->country->isoCode;
-				}
-			} catch (\GeoIp2\Exception\AddressNotFoundException $e) {
-				// Optional: Local IPs (like 127.0.0.1 or 192.168.x.x) will throw this exception naturally.
-				// If you don't want to flood your logs with local developer traffic, leave this block empty.
-			} catch (\Exception $e) {
-				// Logs database corruption, parsing errors, or missing metadata configurations
-				error_log("GeoIP2 Exception: " . $e->getMessage());
-			}
-		}
-		// Optional fallback to a lightweight external lookup (best-effort, short timeout)
-		if ( defined('ALLOW_FALLBACK_GEOLOCATION_LOOKUP') && ALLOW_FALLBACK_GEOLOCATION_LOOKUP === true ) {
-			$url = 'http://ip-api.com/line/' . rawurlencode( $ip ) . '?fields=countryCode';
-			$ctx = stream_context_create(array('http' => array('timeout' => 2)));
-			$res = @file_get_contents( $url, false, $ctx );
-			if ( $res !== false ) {
-				return trim( $res );
-			}
-		}
-		return '';
-	}
+                if (isset($record['country']['iso_code'])) {
+                    return $record['country']['iso_code'];
+                }
+            } else {
+                error_log("GeoIP2 Warning: Database missing or unconfigured at: " . $dbPath);
+            }
+        }
+
+
+        if ( defined('ALLOW_FALLBACK_GEOLOCATION_LOOKUP') && ALLOW_FALLBACK_GEOLOCATION_LOOKUP === true ) {
+            $url = 'http://ip-api.com/line/' . rawurlencode( $ip ) . '?fields=countryCode';
+            $ctx = stream_context_create(array('http' => array('timeout' => 2)));
+            $res = @file_get_contents( $url, false, $ctx );
+            if ( $res !== false ) {
+                return trim( $res );
+            }
+        }
+        
+        return '';
+    }
 
 	// game info:
 	$serverTitle       = (string) clean_str( $_GET['serverTitle'] );
