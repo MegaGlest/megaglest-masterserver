@@ -162,15 +162,21 @@
 	}                                                                      // game in progress
         else 
         {
-                $game_host_ip   = $server[0];
-                $game_host_port = $server[1];
+			// FIX: Safe array extraction check protecting against empty database query sets
+			if ( is_array($server) ) {
+				$game_host_ip   = $server[0];
+				$game_host_port = $server[1];
+			} else {
+				$game_host_ip   = '';
+				$game_host_port = '';
+			}
 
-                if ( $gameUUID != "" ) {
-	                $server_in_db_not_timedout = @mysqli_query(Registry::$mysqliLink, 'DELETE FROM glestserver WHERE ip=\'' . 
-                               mysqli_real_escape_string(Registry::$mysqliLink, $remote_ip ) . '\' AND externalServerPort=\'' . 
-                               mysqli_real_escape_string(Registry::$mysqliLink, $service_port ) . '\' AND gameUUID <> \'' . 
-                               mysqli_real_escape_string(Registry::$mysqliLink, $gameUUID ) . '\' AND status in (0,1,2);' );
-                }
+			if ( $gameUUID != "" ) {
+				$server_in_db_not_timedout = @mysqli_query(Registry::$mysqliLink, 'DELETE FROM glestserver WHERE ip=\'' . 
+							mysqli_real_escape_string(Registry::$mysqliLink, $remote_ip ) . '\' AND externalServerPort=\'' . 
+							mysqli_real_escape_string(Registry::$mysqliLink, $service_port ) . '\' AND gameUUID <> \'' . 
+							mysqli_real_escape_string(Registry::$mysqliLink, $gameUUID ) . '\' AND status in (0,1,2);' );
+			}
 
 	        if ( ($remote_ip == $game_host_ip && $service_port == $game_host_port) || $status == 2 )    // this server is contained in the database
 	        { 
