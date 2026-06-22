@@ -28,6 +28,10 @@
 	// How many recently seen servers to store
 	define( 'MAX_RECENT_SERVERS', 5 );
 
+	// Path to the MaxMind GeoLite2 or GeoIP2 country database file.
+	// Adjust this if your database is installed somewhere other than the default location.
+	define( 'GEOIP_DB_PATH', '/usr/share/GeoIP/GeoLite2-Country.mmdb' );
+
 	// Allow the external fallback geolocation lookup used when the geoip extension is unavailable.
 	// Set this to true only if you explicitly want the server to contact third-party services.
 	define( 'ALLOW_FALLBACK_GEOLOCATION_LOOKUP', false );

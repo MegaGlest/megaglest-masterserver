@@ -29,24 +29,32 @@
 		if ( (int)$privacyPlease !== 0 ) {
 			return '';
 		}
-		
-		// Check for the modern geoip2 extension
-		if ( extension_loaded('geoip2') ) {
-			// Path to your downloaded MaxMind database file
-			$dbPath = '/var/www/html/GeoLite2-Country.mmdb'; 
+
+		if ( extension_loaded('maxminddb') ) {
+			$dbPath = defined('GEOIP_DB_PATH') && GEOIP_DB_PATH !== '' ? GEOIP_DB_PATH : '';
+			if ( $dbPath === '' ) {
+				error_log('GeoIP2 Error: Database path is not configured.');
+				return '';
+			}
 			
-			if (file_exists($dbPath)) {
-				try {
-					// GeoIP2 uses an object-oriented approach
-					$reader = new \GeoIp2\Database\Reader($dbPath);
-					$record = $reader->country($ip);
-					
-					if (isset($record->country->isoCode)) {
-						return $record->country->isoCode;
-					}
-				} catch (\Exception $e) {
-					// Handle IP not found or database errors silently
+			if (!file_exists($dbPath)) {
+				error_log("GeoIP2 Error: Database file not found at " . $dbPath);
+				return '';
+			}
+
+			try {
+				$reader = new \GeoIp2\Database\Reader($dbPath);
+				$record = $reader->country($ip);
+				
+				if (isset($record->country->isoCode)) {
+					return $record->country->isoCode;
 				}
+			} catch (\GeoIp2\Exception\AddressNotFoundException $e) {
+				// Optional: Local IPs (like 127.0.0.1 or 192.168.x.x) will throw this exception naturally.
+				// If you don't want to flood your logs with local developer traffic, leave this block empty.
+			} catch (\Exception $e) {
+				// Logs database corruption, parsing errors, or missing metadata configurations
+				error_log("GeoIP2 Exception: " . $e->getMessage());
 			}
 		}
 		// Optional fallback to a lightweight external lookup (best-effort, short timeout)
