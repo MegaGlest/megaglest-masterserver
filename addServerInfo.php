@@ -30,16 +30,21 @@
             return '';
         }
 
-        // Try MaxMind Local DB first
-        if ( extension_loaded('maxminddb') ) {
+		if ( extension_loaded('maxminddb') ) {
             $dbPath = defined('GEOIP_DB_PATH') && GEOIP_DB_PATH !== '' ? GEOIP_DB_PATH : '';
             
-            // Soft check: Only attempt lookup if path is configured and file exists
             if ( $dbPath !== '' && file_exists($dbPath) ) {
-                $record = maxminddb_lookup_string($dbPath, $ip);
+                try {
+                    // 🚀 Instantiates the native C-compiled binary reader class
+                    $reader = new \MaxMind\Db\Reader($dbPath);
+                    $record = $reader->get($ip);
+                    $reader->close();
 
-                if (isset($record['country']['iso_code'])) {
-                    return $record['country']['iso_code'];
+                    if (isset($record['country']['iso_code'])) {
+                        return $record['country']['iso_code'];
+                    }
+                } catch (\Exception $e) {
+                    error_log("MaxMind PECL Extension Exception: " . $e->getMessage());
                 }
             } else {
                 error_log("GeoIP2 Warning: Database missing or unconfigured at: " . $dbPath);
