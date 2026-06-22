@@ -65,15 +65,38 @@
     }
 
 	// game info:
-	$serverTitle       = (string) clean_str( $_GET['serverTitle'] );
-	$remote_ip         = (string) clean_str( $_SERVER['REMOTE_ADDR'] );
+    $serverTitle = (string) clean_str( $_GET['serverTitle'] );
+    
+	// Determine the real game server IP securely
+    $remote_ip = '';
 
-	// If the clients' IP address belongs to a RFC1918 IP range...
-	if ( strncmp( $remote_ip, get_localsubnet_ip_prefix(), strlen( get_localsubnet_ip_prefix() ) ) == 0 )
-	{
-		// ...then replace it by the master servers' public IP address.
-		$remote_ip = get_external_ip();
-	}
+    if (!empty($_SERVER['HTTP_X_REAL_IP'])) {
+        $remote_ip = clean_str($_SERVER['HTTP_X_REAL_IP']);
+    } elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+        $remote_ip = clean_str(explode(',', $_SERVER['HTTP_X_FORWARDED_FOR'])[0]);
+    } 
+    
+    // If headers are missing, use the direct connection IP
+    if (empty($remote_ip) || !filter_var($remote_ip, FILTER_VALIDATE_IP)) {
+        $remote_ip = !empty($_SERVER['REMOTE_ADDR']) ? clean_str($_SERVER['REMOTE_ADDR']) : '';
+    }
+
+    // If it's a local/Docker internal IP, attempt the legacy external lookup function
+    if ( $remote_ip === '127.0.0.1' || strncmp( $remote_ip, '172.', 4 ) === 0 || strncmp( $remote_ip, '192.168.', 8 ) === 0 || empty($remote_ip) )
+    {
+        if (function_exists('get_external_ip')) {
+            $ext = get_external_ip();
+            if (!empty($ext) && filter_var($ext, FILTER_VALIDATE_IP)) { 
+                $remote_ip = $ext; 
+            }
+        }
+    }
+
+    // 🚨 EMERGENCY BREAK: If everything failed, do not try to open a socket to nothing
+    if (empty($remote_ip)) {
+        error_log("Masterserver Error: Could not determine client IP address.");
+        die("unable to determine your IP address");
+    }
 
 	$service_port      = (int)    clean_str( $_GET['externalconnectport'] );
 
